@@ -1,6 +1,10 @@
 #! 
+import pandas as pd
+import datetime
+import plotly.express as px
+import plotly.graph_objects as go
 
-def bearable_graph(df):
+def graph(df):
 
     df.loc[:, 'date'] = pd.to_datetime(df['date'])
     df_symptom = df[(df['category'] == 'Symptom')]
