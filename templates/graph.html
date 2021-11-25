@@ -1,21 +1,16 @@
-<!doctype html>
-<html>
-<body style="font-family:arial, sans-serif">
-    <h1>{{header}}</h1>
-    <h6><a href="/">Return to index page</a></h6>
-    <div id="chart" class="chart"></div>
-    <div>{{description}}</div>
-</body>
+{# _pawprint/templates/graph.html #}
+
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div id='chart' class='chart'”></div>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript">
     var graphs = {{ graph_json | safe}};
     Plotly.plot('chart',graphs,{});
 </script>
+{{ filename }}
 
-<!-- {% for table in tables %}
-            {{titles[loop.index]}}
-            {{ table|safe }}
-	{% endfor %} -->
-
-</html>
+{% endblock %}

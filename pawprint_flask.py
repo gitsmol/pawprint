@@ -15,16 +15,13 @@ ALLOWED_EXTENSIONS = {'csv'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/getdata', methods=['GET', 'POST'])
-def bearchart():
+@app.route('/', methods=['GET', 'POST'])
+def load():
+
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -54,9 +51,12 @@ def bearchart():
             Returns import of Bearable csv.
             """     
             return render_template('graph.html', filename=filename, graph_json=graph_json)
-            # return render_template('graph.html', graphJSON=graphJSON, header=header,description=description, filename=filename)
-    return render_template('upload.html')
 
+    return render_template('index.html')
+
+@app.route('/about')
+def about():    
+    return render_template('about.html')
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.101')
+    app.run(host='192.168.1.101', debug=True)

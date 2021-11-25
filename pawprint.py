@@ -97,7 +97,7 @@ def graph(df):
                         line_shape='spline',
                         connectgaps=True))
     fig.update_layout(
-        width=1200,
+        width=900,
         height=400,
         autosize=False,
         margin=dict(t=40, b=10, l=10, r=10),

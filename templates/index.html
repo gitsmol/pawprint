@@ -1,35 +1,24 @@
-<!doctype html>
-<html>
-    <head>
-        <link rel="stylesheet" href="./static/style.css">
-    </head>
+{# _pawprint/templates/index.html_ #}
 
-<body style="font-family:arial, sans-serif">
-    <div class="header">
-        <h1>Pawprint - </h1>
-        <p>Visualizing Bearable data<p>
-      </div>
-      
-      <div class="topnav">
-        <a href="#">Pawprint</a>
-        <a href="#">About</a>
-        <a href="#">Github</a>
-      </div>
-    
-    <div class='row'>
-        <div class="column side">
-          </div>
-          
-        <div class='column middle'>
-            <h1><a href="getdata">Use Pawprint</a></h1>
-        </div>
+{% extends "layout.html" %}
 
-        <div class="column side">
+{% block body %}
 
-          </div>
-          
-    </div>
+<h2>What does this page do?</h2>
+Pawprint uses data from <a href="https://www.bearableapp.com">Bearable</a> to (crudely) draw graphs. It can only use data provided by you. If you want, you can make a pdf or print your graph to store or share.
 
+<h2>What about my data?</h2>
+<p>Of course, you are very careful about sharing your Bearable data. This page does not save your data. It is set up to convert your Bearable data to a graph <i>in memory</i>. When you send your data to our server, it is not saved to disk. Rather, it is loaded into memory, taken apart and rearranged to present a graph. When you see the graph, the server has already 'forgotten' your data.</p>
+<p>Having said that, you should only send in your data if you feel comfortable about it. Pawprint does not (currently) actively obfuscate data. Theoretically, if someone captures the servers memory somehow, at just the right time, your data is there. Maybe.</p>
+<p>If you want, you can check out the very simple code behind Bearable by visiting my Github page.
 
-</body>
-</html>
+<h2>Using Bearable data</h2>
+To draw a graph of your Bearable data, you need to export it first. 
+
+<h3>Select Bearable file</h3>
+<form method=post enctype=multipart/form-data>
+<input type=file name=file>
+<input type=submit value='Use data'>
+</form>
+
+{% endblock %}
