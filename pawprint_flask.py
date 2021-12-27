@@ -8,12 +8,24 @@ import plotly.express as px
 import plotly.graph_objects as go
 import datetime
 import pawprint
+from loguru import logger
+
+from flask_flatpages import FlatPages, pygments_style_defs
+from flask_frozen import Freezer
+
+#logger.add(sys.stderr, format="{time} {level} {message}", filter="", level="INFO")
+#logger.debug('Logger started.')
+
+DEBUG = True
 
 UPLOAD_FOLDER = './uploads/'
 ALLOWED_EXTENSIONS = {'csv'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['FLATPAGES_EXTENSION'] = '.md'
+app.config['FLATPAGES_AUTO_RELOAD'] = DEBUG
+flatpages = FlatPages(app)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -54,9 +66,11 @@ def load():
 
     return render_template('index.html')
 
-@app.route('/about')
-def about():    
-    return render_template('about.html')
+@app.route('/<path:path>')
+def page(path):
+    page = flatpages.get(path)
+    print(path, "|", page)
+    return render_template('about.html', page=page)
 
 if __name__ == '__main__':
     app.run(host='192.168.1.101', debug=True)

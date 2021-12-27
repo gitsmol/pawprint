@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="./static/style.css">
+    </head>
+
+<body>
+	<div class="row">
+		<div class="column side">
+		</div>
+		<div class="column middle">
+    <div class="header">
+        <h1>Pawprint</h1>
+        <p>Visualizing Bearable data<p>
+      </div>
+      
+      <div class="topnav">
+	      <ul>
+	      <li><a href="load">Use Pawprint</a></li>
+	      <li style="float: right"><a href="about">About</a></li>
+	      <li style="float: right"><a href="https://github.com/gitsmol/pawprint">Github</a></li>
+	      </ul>
+      </div>
+    
+		</div>
+	</div>
+    <div class="row">
+        <div class="column side">
+          </div>
+          
+        <div class='column middle'>
+	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+	<script type='text/javascript'>
+	  var graphs = {{graph_json| safe}};
+	  Plotly.plot('chart',graphs,{});
+	</script>
+
+
+		{{ filename }}
+
+	<!-- {% for table in tables %}
+            {{titles[loop.index]}}
+            {{ table|safe }}
+	{% endfor %} -->
+
+	</div>
+
+        <div class="column side">
+
+          </div>
+          
+    </div>
+
+
+</body>
+</html>
+
+
+
