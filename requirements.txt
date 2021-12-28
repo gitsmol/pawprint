@@ -1,0 +1,6 @@
+pandas
+plotly
+datetime
+dash
+base64
+io

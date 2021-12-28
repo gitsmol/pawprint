@@ -7,9 +7,15 @@
 <div id='chart' class='chart'”></div>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script type="text/javascript">
-    var graphs = {{ graph_json | safe}};
-    Plotly.plot('chart',graphs,{});
+<script type='text/javascript'>
+    var measurements = {{fig_measurements_json | safe}};
+    Plotly.plot('chart',measurements,{});
+  </script>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script type='text/javascript'>
+    var charts = {{fig_factors_json | safe}};
+    Plotly.plot('chart',factors,{});
 </script>
 {{ filename }}
 

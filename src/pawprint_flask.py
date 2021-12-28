@@ -51,18 +51,19 @@ def load():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             try:
-                df = pd.read_csv(file)
-                fig = pawprint.graph(df)
+                data = pawprint.BearableData(file)
+                fig_measurements, fig_factors = pawprint.draw_bearable_fig(data)
             except Exception as e:
                 errormessage = e
                 return render_template('error.html', filename=filename, errormessage=errormessage)
 
-            graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            fig_measurements_json = json.dumps(fig_measurements, cls=plotly.utils.PlotlyJSONEncoder)
+            fig_factors_json = json.dumps(fig_factors, cls=plotly.utils.PlotlyJSONEncoder)
             header="Bearable csv"
             description = """
             Returns import of Bearable csv.
             """     
-            return render_template('graph.html', filename=filename, graph_json=graph_json)
+            return render_template('graph.html', filename=filename, fig_measurements_json=fig_measurements_json, fig_factors_json=fig_factors_json)
 
     return render_template('index.html')
 
@@ -73,4 +74,5 @@ def page(path):
     return render_template('about.html', page=page)
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.101', debug=True)
+    # app.run(host='192.168.1.101', debug=True)
+    app.run(host='localhost', debug=True)

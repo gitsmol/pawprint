@@ -17,7 +17,6 @@ class BearableData:
         self.REP_dates = pd.DataFrame(self.STA_df['date'].unique(), columns=['date'])
         self.REP_longform = self.build_longform(self.INT_df, self.categories)
         
-        
     def wrangle(self, df):
         # Timestamps are a mess in bearable export data. (It's true, sorry guys and gals.)
         # We have to convert all data to usable timestamps before we can report anything.
@@ -49,9 +48,6 @@ class BearableData:
             'mid': '12:00',
             'pm': '18:00',
             'all day' : '00:00',
-            '' : '00:00',
-            None : '00:00',
-            'None' : '00:00'
             }.get(key)
 
     def get_factors_unique(self, df_category):
@@ -80,18 +76,17 @@ class BearableData:
             df_category['rating/amount'] = pd.to_numeric(df_category.loc[:, 'rating/amount'], downcast='float')
 
             # symptoms are averaged and aggregated to daily levels. 
-            # TODO: split columns for different symptoms and create reporting option for this.
+            # TODO: retain different symptoms and create reporting option for this.
             # To do this, remove one sequence of .groupby() from the last line.
             if category == 'Symptom':
                 df_category['detail'] = df_category['detail'].str.extract(r'(.*(?=\ \())')
                 df_category = df_category.groupby(['datetime', 'category', 'detail']).agg('mean').reset_index().groupby(['datetime', 'category']).agg('sum').reset_index()
 
             if category == 'Factors':
-                # df_category = self.STA_df[(self.STA_df.category == 'Factors')]
-                df_factors = pd.DataFrame()
-                self.factors_unique = self.get_factors_unique(df_category)
                 # find factors in dataframe and set a numeric value
                 # we use this to aggregate values and create a barchart
+                df_factors = pd.DataFrame()
+                self.factors_unique = self.get_factors_unique(df_category)
                 for factor in self.factors_unique:
                     mask = df_category[(df_category['detail'].str.contains(factor))]
                     mask['factor'] = factor
@@ -111,7 +106,6 @@ class BearableData:
 
 def draw_bearable_fig(data):
     fig_measurements = go.Figure()
-    # dates = data_obj.REP_dates['date']
     colors = ['#00429d', '#4b568d', '#6c6a7a', '#ff0000', '#fdd249', '#ffa563', '#e06dff']
 
     for category in data.categories:
@@ -122,21 +116,18 @@ def draw_bearable_fig(data):
             for factor in data.factors_unique:
                 df_factor = selection.loc[selection['factor'] == factor]
                 fig_factors.add_trace(go.Histogram(x=df_factor['datetime'], y=df_factor['rating/amount'], name = factor, histfunc='sum', xbins=dict(size= '604800000'), autobinx=False) # 1 week in milliseconds
-                        )
+                )
         
         else:
-            trace_data = px.scatter(x=selection['datetime'], y=selection['rating/amount'], trendline="rolling", trendline_options={'window': 7}).data[1]
-            
-            trace_name = f'{category} moving'
-            # fig_measurements.add_trace(go.Scatter(trace_data, name=trace_name, line={'color' : colors[0]}, showlegend=True, line_shape='spline', fill='tozeroy'))
+            trace_name_avg = f'{category} average'
             fig_measurements.add_trace(go.Scatter(x=selection['datetime'], y=selection['rating/amount'], name=category, showlegend=True, line_shape='spline', fill='tozeroy'))
-            fig_measurements.add_trace(go.Scatter(x=selection['datetime'], y=selection['average'], name=trace_name, showlegend=True, line_shape='spline', fill='tozeroy'))
+            fig_measurements.add_trace(go.Scatter(x=selection['datetime'], y=selection['average'], name=trace_name_avg, showlegend=True, line_shape='spline', fill='tozeroy'))
 
 
     fig_measurements.update_layout(
-        width=900,
-        height=400,
-        autosize=False,
+        # width=900,
+        # height=400,
+        autosize=True,
         margin=dict(t=40, b=10, l=10, r=10),
         template="plotly",
         # barmode='overlay'
