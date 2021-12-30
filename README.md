@@ -6,8 +6,9 @@ The BearableData() class is intialized by passing it a csv-file as exported by t
 
 Before transforming the Bearable data to longform, consider changing the parameters:
 graph_configuration is a dict consisting of:
-- trend_window: sets the number of measurements to average when calculating a trend (default: 9)
-- histogram_binsize: sets the histogram binsize (used for factors) (default: 1 month).
+- trend_window: sets the number of measurements to average when calculating a trend (default: 9) (Already deprecated in favor of lowess-trendline from Plotly)
+- lowess_fraction: set the amount of smoothing for the LOWESS trendline. (default: 0.1)
+- histogram_period: sets the histogram binsize (used for factors) (default: 1 month).
 
 categories is a list that contains the categories to be included. The default list is:
 ['Symptom', 'Mood', 'Energy', 'Sleep', 'Sleep quality', 'Factors']
@@ -28,8 +29,8 @@ A basic example of using the pawprint module in python would be:
 import pawprint                 # import pawprint module
 
 data = pawprint.BearableData('../bearable_data.csv')    # initialize BearableData-object
-data.graph_configuration['trend_window'] = 15           # set the number of measurements to average
-data.graph_configuration['histogram_binsize'] = 'W2'    # set the histogram binsize to 2 weeks
+data.graph_configuration['lowess_fraction'] = 0.3       # smooth out the trendlines
+data.graph_configuration['histogram_period'] = '2W'     # set the histogram binsize to 2 weeks
 data.build_longform()           # create long-form dataframe
 data.draw_bearable_fig()        # create two figures
 data.FIG_measurements.show()    # show measurements
@@ -42,4 +43,4 @@ Symptoms are reported according to the following principles:
 2. The severity of a symptom for a given day should be the *average* of all values given for that day.
 3. The severity of all symptoms for a given day should be the *sum* of the above averages.
 
-This is somewhat different to the way Bearable reports these values in the app. Notably, Bearable doesn't average symptoms of the same kind but rather sums up all values for a given day.
+This is somewhat different to the way Bearable reports these values in the app. Notably, Bearable does not sum up all values for a given day but averages the same symptom type first.
