@@ -14,6 +14,7 @@ categories is a list that contains the categories to be included. The default li
 ['Symptom', 'Mood', 'Energy', 'Sleep', 'Sleep quality', 'Factors']
 
 build_longform() creates the REP_longform dataframe.
+
 draw_bearable_fig() creates two plotly graph objects:
  - FIG_measurements
  - FIG_factors
