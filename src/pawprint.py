@@ -1,3 +1,4 @@
+import random
 import pandas as pd
 import datetime
 import plotly.express as px
@@ -13,9 +14,15 @@ class BearableData:
         self.factors_unique = ''
         self.categories = ['Symptom', 'Mood', 'Energy', 'Sleep', 'Sleep quality', 'Factors']
         self.INT_df = self.wrangle(self.STA_df)
+        self.graph_configuration = {
+            'trend_window' : 9,
+            'histogram_period' : '1M',
+            'lowess_fraction' : 0.1
+        }
         
-        self.REP_dates = pd.DataFrame(self.STA_df['date'].unique(), columns=['date'])
-        self.REP_longform = self.build_longform(self.INT_df, self.categories)
+        self.REP_longform = ''
+        self.FIG_measurements = ''
+        self.FIG_factors = ''
         
     def wrangle(self, df):
         # Timestamps are a mess in bearable export data. (It's true, sorry guys and gals.)
@@ -33,6 +40,16 @@ class BearableData:
         df.loc[:, 'date'] = pd.to_datetime(df.loc[:, 'date'])
 
         return df
+
+    def get_binsize(self, key):
+         return {
+            '1W': '604800000',
+            '2W': '1209600000',
+            '3W': '1814400000',
+            '1M': 'M1',
+            '2M': 'M2',
+            '3M': 'M3'
+            }.get(key)
 
     def get_time(self, key):
         # the data contains strings vaguely pointing to periods. 
@@ -60,9 +77,10 @@ class BearableData:
             
             return factors_unique
 
-    def build_longform(self, df, categories):
+    def build_longform(self):
         df_longform = pd.DataFrame()
-        for category in categories:
+        df = self.INT_df
+        for category in self.categories:
             df_category = df.loc[(df['category'] == category)]
 
             # hours of sleep need to be converted to floating point.
@@ -96,47 +114,76 @@ class BearableData:
                 df_category = df_factors
 
             # create rolling average column
-            window = 7 # how many values to average?
-            df_category['average'] = df_category['rating/amount'].rolling(window).mean().round(2)
+            trend_window = self.graph_configuration.get('trend_window') # how many values to average?
+            # df_category['average'] = df_category['rating/amount'].rolling(trend_window).mean().round(1)
+            df_category['average'] = df_category['rating/amount'].ewm(span=trend_window).mean().round(2)
             df_longform = df_longform.append(df_category)
 
         df_longform = df_longform[['datetime', 'category', 'factor', 'rating/amount', 'average', 'detail']]
         df_longform.sort_values(by='datetime', inplace=True)
-        return df_longform
+        self.REP_longform = df_longform
 
-def draw_bearable_fig(data):
-    fig_measurements = go.Figure()
-    colors = ['#00429d', '#4b568d', '#6c6a7a', '#ff0000', '#fdd249', '#ffa563', '#e06dff']
+    def draw_bearable_fig(self):
+        # this is the Okabe Ito colorblind-friendly palette in hex.
+        colors = ['#000000', '#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7']
 
-    for category in data.categories:
-        selection = data.REP_longform.loc[(data.REP_longform['category'] == category)]
+        fig_measurements = go.Figure()
 
-        if category == 'Factors':
-            fig_factors = go.Figure()
-            for factor in data.factors_unique:
-                df_factor = selection.loc[selection['factor'] == factor]
-                fig_factors.add_trace(go.Histogram(x=df_factor['datetime'], y=df_factor['rating/amount'], name = factor, histfunc='sum', xbins=dict(size= '604800000'), autobinx=False) # 1 week in milliseconds
-                )
-        
-        else:
-            trace_name_avg = f'{category} average'
-            fig_measurements.add_trace(go.Scatter(x=selection['datetime'], y=selection['rating/amount'], name=category, showlegend=True, line_shape='spline', fill='tozeroy'))
-            fig_measurements.add_trace(go.Scatter(x=selection['datetime'], y=selection['average'], name=trace_name_avg, showlegend=True, line_shape='spline', fill='tozeroy'))
+        for category in self.categories:
+            selection = self.REP_longform.loc[(self.REP_longform['category'] == category)]
+            trace_color = colors.pop()
+
+            if category == 'Factors':
+                fig_factors = go.Figure()
+                # get configuration options
+                binsize = self.get_binsize(self.graph_configuration.get('histogram_period'))
+                # create histograms for every factor
+                for factor in self.factors_unique:
+                    df_factor = selection.loc[selection['factor'] == factor]
+                    fig_factors.add_trace(go.Histogram(x=df_factor['datetime'], y=df_factor['rating/amount'], name = factor, histfunc='sum', xbins=dict(size= binsize), autobinx=False) # 1 week in milliseconds
+                    )
+            
+            else:
+                # get configuration options
+                trace_name_avg = f"{category} trend ({self.graph_configuration.get('trend_window')})"
+                lowess_fraction = self.graph_configuration.get('lowess_fraction')
+                # create traces
+                category_trace = go.Scatter(x=selection['datetime'], y=selection['rating/amount'], name=category, showlegend=True, line_shape='linear', fill='tozeroy')
+                category_trace.line.color = trace_color
+                trend_trace = px.scatter(selection, x=selection['datetime'], y=selection['rating/amount'], color_discrete_sequence=[trace_color], trendline='lowess', trendline_options=dict(frac=lowess_fraction)).data[1]
+                trend_trace.name = f'{category} LOWESS'
+                trend_trace.line.color = trace_color
+
+                # add traces to figure
+                fig_measurements.add_trace(category_trace)
+                fig_measurements.add_trace(trend_trace)
 
 
-    fig_measurements.update_layout(
-        # width=900,
-        # height=400,
-        autosize=True,
-        margin=dict(t=40, b=10, l=10, r=10),
-        template="plotly",
-        # barmode='overlay'
+        fig_measurements.update_traces(
+            showlegend=True
+            )
+        fig_measurements.update_layout(
+            autosize=True,
+            margin=dict(t=40, b=10, l=10, r=10),
+            template="plotly",
+            # barmode='overlay'
+            )
+        fig_measurements.update_xaxes(
+        rangeslider_visible = True
         )
-    fig_measurements.update_xaxes(
-    rangeslider_visible = True
-    )
 
-    return fig_measurements, fig_factors
+        fig_factors.update_layout(
+            autosize=True,
+            margin=dict(t=40, b=10, l=10, r=10),
+            template="plotly",
+            # barmode='overlay'
+            )
+        fig_factors.update_xaxes(
+            rangeslider_visible = True
+        )
+
+        self.FIG_measurements = fig_measurements
+        self.FIG_factors = fig_factors
 
 if __name__ == "__main__":
     print("Pawprint is a module to be imported by a script.")

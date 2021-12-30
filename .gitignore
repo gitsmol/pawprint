@@ -5,6 +5,9 @@
 .ipynb
 input_data/
 uploads/
+.DS_Store
+.*.el
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
