@@ -54,6 +54,6 @@ This project is built entirely on
 - Dash and its Flask underpinnings
 
 ## Running this at home
-In any console, firing up ```python3 pawday.py``` should give you the pawprint interface on localhost:8050. Beware: the default config expects to run in '/pawprint/'. Change this to any suitable value or just '/'.
+In any console, firing up ```python3 pawdash.py``` should give you the pawprint interface on localhost:8050. Beware: the default config expects to run in '/pawprint/'. Change this to any suitable value or just '/'.
 
 
