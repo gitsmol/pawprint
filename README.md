@@ -1,4 +1,4 @@
-# pawprint
+# Pawprint
 Pawprint lets users of Bearable [https://bearable.app] examine their data in a browser. Its aim is to provide an easy and safe way to generate graphs and reports for personal use or sharing with others.
 
 ## barebones technical details
@@ -45,3 +45,15 @@ Symptoms are reported according to the following principles:
 3. The severity of all symptoms for a given day should be the *sum* of the above averages.
 
 This is somewhat different to the way Bearable reports these values in the app. Notably, Bearable does not sum up all values for a given day but averages the same symptom type first.
+
+## Dependencies
+This project is built entirely on 
+- Python (3.9.6 but should work on earlier versions)
+- Pandas
+- Plotly and Plotly Express
+- Dash and its Flask underpinnings
+
+## Running this at home
+In any console, firing up ```python3 pawday.py``` should give you the pawprint interface on localhost:8050. Beware: the default config expects to run in '/pawprint/'. Change this to any suitable value or just '/'.
+
+

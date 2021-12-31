@@ -7,10 +7,13 @@ import base64
 import io
 import pawprint
 
-logging.basicConfig(filename='pawprint.log', encoding='utf-8', level=logging.DEBUG, format='%(asctime)s %(message)s')
+WORKING_DIR = '/pawprint/'
+# WORKING_DIR = '/'
 
-app = dash.Dash(__name__)
-# app = dash.Dash(__name__, requests_pathname_prefix='/pawprint/')
+logging.basicConfig(filename=WORKING_DIR+'pawprint.log', encoding='utf-8', level=logging.DEBUG, format='%(asctime)s %(message)s')
+
+# app = dash.Dash(__name__)
+app = dash.Dash(__name__, requests_pathname_prefix=WORKING_DIR)
 server = app.server
 logging.debug('Dash app initialized.')
 
@@ -22,7 +25,7 @@ app.layout = html.Div(className='wrapper', children=[
                 html.P('''Pawprint turns Bearable data into large graphs. 
                 Print or save as pdf to share your results with other people. 
                 Pawprint only keeps your data while you look at it. If you leave this page, it is gone.'''),
-                html.A(href='https:www.github.com/gitsmol/pawprint', children='Check out the readme to learn more.')])
+                html.A(href='https://www.github.com/gitsmol/pawprint', children='Check out the readme to learn more.')])
         ]),
         html.Div(className='block config', children=[
             dcc.Upload(id='upload-data', className='button item', multiple=False, children=[
@@ -36,7 +39,7 @@ app.layout = html.Div(className='wrapper', children=[
                 html.Label('LOWESS smoothing'),
                 dcc.Slider(
                     id='graph-lowess-fraction',
-                    min=0, max=0.5, value=0.1, step=0.01,
+                    min=0, max=0.3, value=0.1, step=0.01,
                     tooltip={"placement": "bottom", "always_visible": True}
                 ),
             ]),
@@ -107,12 +110,15 @@ def update_output(contents, lowess_fraction, histogram_period):
                     figure = data.FIG_measurements
                 ),
                 html.Div(children='''
-            Double click the factors in the legend to disable all. Then enable the ones you want to examine. (I'm open to better ideas to manage a huge number of factors.)
-        '''),
+                    Double click the factors in the legend to disable all. Then enable the ones you want to examine. (I'm open to better ideas to manage a huge number of factors.)
+                    '''),
                 dcc.Graph(
                     figure = data.FIG_factors
+                ),
+                dcc.Graph(
+                    figure = data.FIG_meds
                 )
             ])
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
