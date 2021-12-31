@@ -1,26 +1,28 @@
+import logging
 import dash
-# import flask
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output, State
 import base64
 import io
-# import plotly.express as px
-# import plotly.graph_objects as go
-# import pandas as pd
 import pawprint
 
-# app = dash.Dash(__name__, requests_pathname_prefix='/pawprint/')
+logging.basicConfig(filename='pawprint.log', encoding='utf-8', level=logging.DEBUG, format='%(asctime)s %(message)s')
+
 app = dash.Dash(__name__)
+# app = dash.Dash(__name__, requests_pathname_prefix='/pawprint/')
 server = app.server
+logging.debug('Dash app initialized.')
 
 app.layout = html.Div(className='wrapper', children=[
     html.Div(className='nav', children=[
         html.Div(className='block label', children=[
             html.H3('Pawprint'),
             html.Div(children=[
-                html.P('Pawprint turns Bearable data into graphs you can examine up close.'),
-                html.A(href='https:www.github.com/gitsmol/pawprint', children='Check out the readme.')])
+                html.P('''Pawprint turns Bearable data into large graphs. 
+                Print or save as pdf to share your results with other people. 
+                Pawprint only keeps your data while you look at it. If you leave this page, it is gone.'''),
+                html.A(href='https:www.github.com/gitsmol/pawprint', children='Check out the readme to learn more.')])
         ]),
         html.Div(className='block config', children=[
             dcc.Upload(id='upload-data', className='button item', multiple=False, children=[
@@ -81,6 +83,7 @@ def get_histogram_period(value):
             #   State('upload-data', 'last_modified')
             )
 def update_output(contents, lowess_fraction, histogram_period):
+    logging.debug('Running update_output()')
     if contents:
         try:
             content_type, content_string = contents.split(",")
@@ -93,8 +96,10 @@ def update_output(contents, lowess_fraction, histogram_period):
             data.draw_bearable_fig()
 
         except Exception as e:
-            print(f'Exception: {e}')
-            return html.Div(['Unable to process your file.'])
+            logging.error('!!! Caught exception: %s', e)
+            logging.exception('!!! Caught exception: %s', e)
+
+            return html.P('Unable to process your file.')
 
         if decoded is not None:
             return html.Div(children=[
