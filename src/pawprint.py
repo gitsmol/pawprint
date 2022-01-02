@@ -24,7 +24,7 @@ class BearableData:
         }
         
     def wrangle(self, df):
-        # Timestamps are a mess in bearable export data. (It's true, sorry guys and gals.)
+        # Timestamps are problematic in bearable export data.
         # We have to convert all data to usable timestamps before we can report anything.
         mask = df['time of day'].isna() # find missing data
         df.loc[mask, 'time of day'] = '00:00' # fill in 00:00 for missing data
@@ -95,9 +95,18 @@ class BearableData:
             # symptoms are averaged and aggregated to daily levels. 
             # TODO: retain different symptoms and create reporting option for this.
             # To do this, remove one sequence of .groupby() from the last line.
+            # NOTE: there are a lot of choices to be made regarding the aggregation of symptom values.
             if category == 'Symptom':
                 df_category['detail'] = df_category['detail'].str.extract(r'(.*(?=\ \())')
-                df_category = df_category.groupby(['datetime', 'category', 'detail']).agg('mean').reset_index().groupby(['datetime', 'category']).agg('sum').reset_index()
+                
+                # NOTE: this averages each symptom per period of the day and sums them per period of the day. (Hence grouping on datetime.)
+                # df_category = df_category.groupby(['datetime', 'category', 'detail']).agg('sum').reset_index().groupby(['datetime', 'category']).agg('sum').reset_index()
+
+                # NOTE: this takes the max of each symptom per day and sums them per day.
+                # (Hence grouping on date and normalizing periods of the day.)
+                # (This is the way Bearable reports in app.)
+                df_category = df_category.groupby(['date', 'category', 'detail']).agg('max').reset_index().groupby(['date', 'category']).agg('sum').reset_index()
+                df_category['datetime'] = df_category['date']
 
             if category == 'Factors':
                 # find factors in dataframe and set a numeric value
