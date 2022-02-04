@@ -38,14 +38,6 @@ data.FIG_measurements.show()    # show measurements
 data.FIG_factors.show()         # show factors
 ```
 
-## Symptoms
-Symptoms are reported according to the following principles:
-1. Two symptoms are worse than one.
-2. The severity of a symptom for a given day should be the *average* of all values given for that day.
-3. The severity of all symptoms for a given day should be the *sum* of the above averages.
-
-This is somewhat different to the way Bearable reports these values in the app. Notably, Bearable does not sum up all values for a given day but averages the same symptom type first.
-
 ## Dependencies
 This project is built entirely on 
 - Python (3.9.6 but should work on earlier versions)

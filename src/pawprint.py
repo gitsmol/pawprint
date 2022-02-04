@@ -12,6 +12,7 @@ class BearableData:
     """This is a basic ETL process wrapped up in a class.
     This allows one to examine the data created in various stages of the process."""
     def __init__(self, bearable_file):
+        logging.info('Initializing Bearable class')
         self.bearable_file = bearable_file
         self.STA_df = self.extract_data(self.bearable_file)
         self.categories = ['Symptom', 'Mood', 'Energy', 'Sleep', 'Sleep quality', 'Factors', 'Meds/Supplements']
@@ -161,7 +162,8 @@ class BearableData:
                     binsize = self.get_binsize(self.graph_configuration.get('histogram_period'))
                     # create histograms for every med/supplement
                     for meds in meds_unique:
-                        fig_meds.add_trace(go.Histogram(x=selection['datetime'], y=selection['rating/amount'], name = meds, histfunc='sum', xbins=dict(size= binsize), autobinx=False)                    )
+                        df_meds = selection.loc[selection['detail'] == meds]
+                        fig_meds.add_trace(go.Histogram(x=df_meds['datetime'], y=df_meds['rating/amount'], name = meds, histfunc='sum', xbins=dict(size= binsize), autobinx=False))
                     fig_meds.update_layout(
                         autosize=True,
                         margin=dict(t=40, b=10, l=10, r=10),
