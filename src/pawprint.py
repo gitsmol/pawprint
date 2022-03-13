@@ -106,7 +106,14 @@ class BearableData:
                 # NOTE: this takes the max of each symptom per day and sums them per day.
                 # (Hence grouping on date and normalizing periods of the day.)
                 # (This is the way Bearable reports in app.)
-                df_category = df_category.groupby(['date', 'category', 'detail']).agg('max').reset_index().groupby(['date', 'category']).agg('sum').reset_index()
+                df_category = (
+                    df_category.groupby(['date', 'category', 'detail'])
+                     .agg('max')
+                     .reset_index()
+                     # .groupby(['date', 'category'])
+                     # .agg('sum')
+                     # .reset_index()
+                     )
                 df_category['datetime'] = df_category['date']
 
             if category == 'Factors':
